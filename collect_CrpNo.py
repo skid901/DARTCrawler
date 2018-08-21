@@ -1,7 +1,7 @@
 from selenium import webdriver
 
 # 셀레니움을 사용하여, 기업 고유 번호를 탐색하는 함수
-def search_CrpNo(target_BusinessNo, target_CrpNm):
+def search_crpNo(target_BusinessNo, target_CrpNm):
     '''
     # geckodriver(파이어폭스 버전) 설치경로 및 브라우저 실행
     executable_path = "C:\itStudy\Web\geckodriver-v0.21.0-win64\geckodriver.exe"
@@ -78,7 +78,7 @@ def search_CrpNo(target_BusinessNo, target_CrpNm):
     return [target_CrpNm, target_BusinessNo, target_BusinessNo_NonFiltering, target_CrpNo]
 
 # search_CrpNo 함수를 수행하여, 기업 고유 번호를 수집하는 함수
-def collect_CrpNo():
+def collect_crpNo():
     # 부도 기업 리스트 파일 열기
     with open("bankrupt_company_list.csv", 'r') as bankrupt_company_list:
         # 리스트에서 한 줄씩 호출
@@ -88,11 +88,12 @@ def collect_CrpNo():
         # 부도 기업 리스트 파일의 마지막 레코드 인덱스 설정 변수 선언
         end_index = len( bankrupt_companies )
         # 이전 작업을 확인하기 위해, 기업 고유 번호 리스트 파일 열기
-        with open("crpNo_list.csv", 'r+') as crpNo_list:
+        with open("crpNo_list.csv", 'a') as crpNo_list:
             # 이전 작업 산출물이 있다면, 마지막 작업 레코드의 인덱스를 시작 레코드 인덱스로 설정
-            start_index = len( crpNo_list.readlines() )
+            try:
+                start_index = len( crpNo_list.readlines() )
             # 이전 작업 산출물이 없다면, 컬럼 명 추가 및 시작 레코드 인덱스를 1로 설정
-            if start_index == 0:
+            except:
                 crpNo_list.write("법인명,사업자번호,사업자번호(필터링X),기업고유번호\n")
                 start_index = 1
         # 시작 레코드 인덱스와 마지막 레코드 인덱스가 같다면 함수 종료
@@ -111,7 +112,7 @@ def collect_CrpNo():
             # 테스트 target_BusinessNo, target_CrpNm
             print("target_BusinessNo | target_CrpNm >>", target_BusinessNo, "|", target_CrpNm)
             # search_CrpNo 함수 호출
-            crpNo_info = search_CrpNo(target_BusinessNo, target_CrpNm)
+            crpNo_info = search_crpNo(target_BusinessNo, target_CrpNm)
             # 테스트 CrpNo_info
             print("crpNo_info >>", crpNo_info)
             # 기업 고유 번호 리스트 파일 열기
@@ -127,13 +128,13 @@ if __name__ == "__main__":
     while(count < 780):
         try:
             # 기업 고유 번호 수집 함수 호출
-            collect_CrpNo()
+            collect_crpNo()
         except:
             # 예회 발생 시, 이를 무시
             None
         finally:
             # 기업 고유 번호 리스트 파일 열기
-            with open("crpNo_list.csv", 'r+') as crpNo_list:
+            with open("crpNo_list.csv", 'r') as crpNo_list:
                 # 수집 정보 레코드 수 확인
                 count = len( crpNo_list.readlines() )
     # 기업 고유 번호를 획득한 레코드 수 확인
