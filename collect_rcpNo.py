@@ -20,12 +20,12 @@ def search_rcpNo(businsessNo, crpNo):
                 "&bsn_tp=" + bsn_tp + \
                 "&page_set=" + page_set
     # 테스트 2
-    print("2 >>", request_url)
+    #print("2 >>", request_url)
     # 응답 결과(JSON 형식) 저장
     response = urlopen(request_url).read().decode('utf-8')
     # JSON 파싱 라이브러리를 사용하여, 보고서 메타 데이터 수집
     # 테스트 3
-    print("3 >>", response)
+    #print("3 >>", response)
     response_json = json.loads(response)
     for report_info in response_json.get("list"):
         '''
@@ -43,7 +43,7 @@ def search_rcpNo(businsessNo, crpNo):
         }
         '''
         # 테스트 4
-        print("4 >>", report_info)
+        #print("4 >>", report_info)
         # 보고서 접수번호 리스트 파일 열기
         with open("rcpNo_list.csv", 'a') as crpNo_list:
             # 보고서 접수번호 리스트 파일에 레코드 작성
@@ -66,7 +66,7 @@ def collect_rcpNo():
             if len(record[3]) <= 2:
                 continue
             # 테스트 1
-            print("1 >>", record[2], record[3].replace('\n',''))
+            #print("1 >>", record[2], record[3].replace('\n',''))
             # crpNo_list에 기업 명, 사업자 등록번호, 기업 고유번호 저장
             search_rcpNo(record[2], record[3].replace('\n',''))
 

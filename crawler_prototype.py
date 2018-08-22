@@ -1,7 +1,5 @@
 from selenium import webdriver
 from bs4 import BeautifulSoup as bs
-import pandas as pd
-import numpy as np
 
 '''
 # geckodriver(파이어폭스 버전) 설치경로 및 브라우저 실행
@@ -56,8 +54,3 @@ with open("report_list.csv", 'w') as list_file:
     for report_info in report_list:
         record = ", ".join(report_info)
         list_file.write(record + "\n")
-'''
-##### 페이지 이동 #####
-df = pd.read_csv("report_list.txt")
-print(df)
-'''
