@@ -89,7 +89,27 @@ for reportName, reportURL in report_dict.items():
 재무상태표: https://dart.fss.or.kr/report/viewer.do?rcpNo=20120404001355&dcmNo=3350848&eleId=4&offset=8479&length=35728&dtd=dart3.xsd
 손익계산서: https://dart.fss.or.kr/report/viewer.do?rcpNo=20120404001355&dcmNo=3350848&eleId=5&offset=44207&length=25851&dtd=dart3.xsd
 현금흐름표: https://dart.fss.or.kr/report/viewer.do?rcpNo=20120404001355&dcmNo=3350848&eleId=7&offset=77198&length=35071&dtd=dart3.xsd
+
+수집 대상 컬럼 명
+매출채권 : ifrs_TradeAndOtherCurrentReceivables
+재고자산 : ifrs_Inventories
+단기차입금 : dart_ShortTermBorrowings
+장기차입금 : dart_LongTermBorrowingsGross
+자산총계 : ifrs_Assets
+부채총계 : ifrs_Liabilities
+자본총계 : ifrs_Equity
+매출액 : ifrs_Revenue
+영업이익 : dart_OperatingIncomeLoss
+당기순이익 : ifrs_ProfitLoss
+매출원가 : ifrs_CostOfSales
+금융비용(손익) : ifrs_FinanceCosts
+영업활동현금흐름 : ifrs_CashFlowsFromUsedInOperatingActivities
+투자활동현금흐름 : ifrs_CashFlowsFromUsedInInvestingActivities
+재무활동현금흐름 : ifrs_CashFlowsFromUsedInFinancingActivities
 '''
+
+# 재무 데이터 저장을 위한 JSON 변수 선언
+reportJSON = {}
 
 # checkpoint 4
 #print('checkpoint 4 >>', finance_position_bsObj)
@@ -106,8 +126,48 @@ for trObj in finance_position_trObjList:
     column = re.sub('주석', '', column)
     # checkpoint 4-1
     #print('checkpoint 4-1 >>', column)
-    if column in ['매출채권', '재고자산', '자산총계', '단기차입금', '장기차입금', '부채총계', '자본총계']:
+    if column in ['매출채권']:
         print(column)
+        value = trObj.find_all('td')[1].get_text()
+        column = re.sub(chr(160), '', column)  # 유령문자 제거
+        column = re.sub('[\t\n\r\f\v]', '', column)
+        print(value)
+    elif column in ['재고자산']:
+        print(column)
+        value = trObj.find_all('td')[2].get_text()
+        column = re.sub(chr(160), '', column)  # 유령문자 제거
+        column = re.sub('[\t\n\r\f\v]', '', column)
+        print(value)
+    elif column in ['자산총계']:
+        print(column)
+        value = trObj.find_all('td')[2].get_text()
+        column = re.sub(chr(160), '', column)  # 유령문자 제거
+        column = re.sub('[\t\n\r\f\v]', '', column)
+        print(value)
+    elif column in ['단기차입금']:
+        print(column)
+        value = trObj.find_all('td')[1].get_text()
+        column = re.sub(chr(160), '', column)  # 유령문자 제거
+        column = re.sub('[\t\n\r\f\v]', '', column)
+        print(value)
+    elif column in ['장기차입금']:
+        print(column)
+        value = trObj.find_all('td')[1].get_text()
+        column = re.sub(chr(160), '', column)  # 유령문자 제거
+        column = re.sub('[\t\n\r\f\v]', '', column)
+        print(value)
+    elif column in ['부채총계']:
+        print(column)
+        value = trObj.find_all('td')[2].get_text()
+        column = re.sub(chr(160), '', column)  # 유령문자 제거
+        column = re.sub('[\t\n\r\f\v]', '', column)
+        print(value)
+    elif column in ['자본총계']:
+        print(column)
+        value = trObj.find_all('td')[2].get_text()
+        column = re.sub(chr(160), '', column)  # 유령문자 제거
+        column = re.sub('[\t\n\r\f\v]', '', column)
+        print(value)
 
 
 # checkpoint 5
@@ -125,8 +185,42 @@ for trObj in income_statement_trObjList:
     column = re.sub('주석', '', column)
     # checkpoint 5-1
     #print('checkpoint 5-1 >>', column)
-    if column in ['매출액', '매출원가', '영업이익', '이자수익', '이자비용', '당기순이익']:
+    if column in ['매출액']:
         print(column)
+        value = trObj.find_all('td')[2].get_text()
+        column = re.sub(chr(160), '', column)  # 유령문자 제거
+        column = re.sub('[\t\n\r\f\v]', '', column)
+        print(value)
+    elif column in ['매출원가']:
+        print(column)
+        value = trObj.find_all('td')[2].get_text()
+        column = re.sub(chr(160), '', column)  # 유령문자 제거
+        column = re.sub('[\t\n\r\f\v]', '', column)
+        print(value)
+    elif column in ['영업이익']:
+        print(column)
+        value = trObj.find_all('td')[2].get_text()
+        column = re.sub(chr(160), '', column)  # 유령문자 제거
+        column = re.sub('[\t\n\r\f\v]', '', column)
+        print(value)
+    elif column in ['이자수익']:
+        print(column)
+        value = trObj.find_all('td')[1].get_text()
+        column = re.sub(chr(160), '', column)  # 유령문자 제거
+        column = re.sub('[\t\n\r\f\v]', '', column)
+        print(value)
+    elif column in ['이자비용']:
+        print(column)
+        value = trObj.find_all('td')[1].get_text()
+        column = re.sub(chr(160), '', column)  # 유령문자 제거
+        column = re.sub('[\t\n\r\f\v]', '', column)
+        print(value)
+    elif column in ['당기순이익']:
+        print(column)
+        value = trObj.find_all('td')[2].get_text()
+        column = re.sub(chr(160), '', column)  # 유령문자 제거
+        column = re.sub('[\t\n\r\f\v]', '', column)
+        print(value)
 
 
 # checkpoint 6
@@ -145,6 +239,22 @@ for trObj in cash_flow_trObjList:
     column = re.sub('주석', '', column)
     # checkpoint 6-1
     #print('checkpoint 6-1 >>', column)
-    if column in ['영업활동으로인한현금흐름', '투자활동으로인한현금흐름', '재무활동으로인한현금흐름']:
+    if column in ['영업활동으로인한현금흐름']:
         print(column)
+        value = trObj.find_all('td')[2].get_text()
+        column = re.sub('[' + chr(32) + chr(160) + ']', '', column)  # 유령문자 제거
+        column = re.sub('[\t\n\r\f\v]', '', column)
+        print(value)
+    elif column in ['투자활동으로인한현금흐름']:
+        print(column)
+        value = trObj.find_all('td')[2].get_text()
+        column = re.sub(chr(160), '', column)  # 유령문자 제거
+        column = re.sub('[\t\n\r\f\v]', '', column)
+        print(value)
+    elif column in ['재무활동으로인한현금흐름']:
+        print(column)
+        value = trObj.find_all('td')[2].get_text()
+        column = re.sub(chr(160), '', column)  # 유령문자 제거
+        column = re.sub('[\t\n\r\f\v]', '', column)
+        print(value)
 
