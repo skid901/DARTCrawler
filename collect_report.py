@@ -225,6 +225,8 @@ def collect_report(rcp_info):
 
 if __name__=="__main__":
     count = 1
+    with open("report_list.json", 'r') as report_list:
+        count = len( report_list.readlines() )
     while(count < 1055):
         try:
             print('connect count : %d' % count)
