@@ -7,7 +7,7 @@ def search_rcpNo(businsessNo, crpNo):
     # 요청 url 변수 설정
     auth_key = "4b8d4bcfe25fe4edafafad828787e5139fe6943b" # DART OPEN API 인증키
     crp_cd = crpNo  # crp_cd: 기업 고유번호
-    start_dt = "20000101"  # start_dt: 검색시작 접수일자(YYYYMMDD)
+    start_dt = "20140101"  # start_dt: 검색시작 접수일자(YYYYMMDD)
     fin_rpt = "Y"  # 최종보고서만 검색여부(Y or N)
     bsn_tp = "F001"  # bsn_tp: 보고서 유형, 본 코드에서는 감사보고서 요청
     page_set = "100"  # 페이지당 건수(1~100)

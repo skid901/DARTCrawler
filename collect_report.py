@@ -12,6 +12,11 @@ import pandas as pd
 from pandas.io.json import json_normalize
 
 def collect_report(rcp_info):
+    # 재무제표 재무 데이터를 저장하는 JSON(파이썬 딕셔너리) 변수 생성
+    report_json = OrderedDict()
+    # 재무제표 메타 데이터를 저장
+    report_json['1.회사명'] = rcp_info[0]
+    report_json['2.년도'] = int(rcp_info_list[4][:4]) - 1
     # 레포트 html문서로 부터, 필요한 세부 레포트 url을 저장할 딕셔너리 생성
     report_dict = {'재무상태표': None, '대차대조표': None, '손익계산서': None, '현금흐름표': None}
     # 보고서 접수번호
@@ -123,14 +128,14 @@ def collect_report(rcp_info):
     for trObj in finance_position_trObjList:
         # 컬럼 명 수집 및 전처리
         column = trObj.find('td').get_text()
-        column = re.sub('[' + chr(32) + chr(160) + ']', '', column)  # 유령문자 제거
-        column = re.sub('[\t\n\r\f\v-=.,#/?:$\{\}a-zA-Z0-9Ⅰ-Ↄ]', '', column)
+        column = re.sub('[' + chr(32) + chr(160) + '\u3000'.decode('utf-8') + ']', '', column)  # 유령문자 제거
+        column = re.sub('[\t\n\r\f\v-=.,#/?:$\{\}a-zA-Z0-9Ⅰ-Ↄㄱ-ㅣ]', '', column)
         column = re.sub('주석', '', column)
         # 컬럼 값 수집 및 전처리
         value = ""
         for td in trObj.find_all('td')[1:]:
             td_text = td.get_text()
-            td_text = re.sub('[' + chr(32) + chr(160) + ']', '', td_text)  # 유령문자 제거
+            column = re.sub('[' + chr(32) + chr(160) + '\u3000'.decode('utf-8') + ']', '', column)  # 유령문자 제거
             td_text = re.sub('[\t\n\r\f\v,]', '', td_text)  # 공백 및 쉼표(,) 제거
             if td_text != "":
                 value = td_text
@@ -202,17 +207,6 @@ def collect_report(rcp_info):
     #jsonString_6_2 = json.dumps(cash_flow_json, indent='\t')  # JSON 문자열 생성
     #print('checkpoint 6-2 >>', jsonString_6_2, json.loads(jsonString_6_2))  # JSON 문자열로 생성산 JSON 객체 출력
 
-    # 재무제표 재무 데이터를 저장하는 JSON(파이썬 딕셔너리) 변수 생성
-    report_json = OrderedDict()
-    # 재무제표 메타 데이터를 저장
-    report_json['company_name'] = rcp_info[0]
-    report_json['business_no'] = rcp_info[1]
-    report_json['report_name'] = rcp_info[2]
-    report_json['report_no'] = rcp_info[3]
-    # 세부 제무 보고서를 재무제표 재무 데이터를 저장하는 JSON(파이썬 딕셔너리)에 저장
-    report_json['finance_position'] = finance_position_json
-    report_json['income_statement'] = income_statement_json
-    report_json['cash_flow'] = cash_flow_json
     # checkpoint 7
     #jsonString_7 = json.dumps(report_json, indent='\t')  # JSON 문자열 생성
     #print('checkpoint 7 >>', jsonString_7, json.loads(jsonString_7))  # JSON 문자열로 생성산 JSON 객체 출력
@@ -227,20 +221,23 @@ if __name__=="__main__":
     count = 1
     with open("report_list.json", 'r') as report_list:
         count = len( report_list.readlines() )
-    while(count < 1055):
-        try:
-            print('connect count : %d' % count)
-            with open("rcpNo_list.csv", 'r') as rcpNo_list:
-                for rcp_info in rcpNo_list.readlines()[ count : ]:
-                    rcp_info_list = rcp_info.split(",")
+    while count < 456:
+        with open("rcpNo_list.csv", 'r') as rcpNo_list:
+            for rcp_info in rcpNo_list.readlines()[ count : ]:
+                rcp_info_list = rcp_info.split(",")
+                report_json = OrderedDict()
+                # 재무제표 메타 데이터를 저장
+                report_json['1.회사명'] = rcp_info_list[0]
+                report_json['2.년도'] = int(rcp_info_list[4][:4]) - 1
+                print(report_json)
+
+                try:
                     report_json = collect_report(rcp_info_list)
-                    report_json_string= json.dumps(report_json)
-                    with open("report_list.json", 'a') as report_list:
-                        report_list.write(report_json_string + ',\n')
-        except:
-            print('main exception executes | present count : %d' % count)
-            with open("report_list.json", 'a') as report_list:
-                report_list.write(',\n')
-        finally:
-            with open("report_list.json", 'r') as report_list:
-                count = len( report_list.readlines() )
+                    print('Success >> current count : %d' % count)
+                except:
+                    with open("fail_count.json", 'a') as fail_count:
+                        fail_count.write('%d\n' % count)
+                    print('Fail >> main exception executes at count : %d' % count)
+                report_json_string = json.dumps(report_json)
+                with open("report_list.json", 'a') as report_list:
+                    report_list.write(report_json_string + ',\n')
