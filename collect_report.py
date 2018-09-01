@@ -15,8 +15,8 @@ def collect_report(rcp_info):
     # 재무제표 재무 데이터를 저장하는 JSON(파이썬 딕셔너리) 변수 생성
     report_json = OrderedDict()
     # 재무제표 메타 데이터를 저장
-    report_json['1.회사명'] = rcp_info[0]
-    report_json['2.년도'] = int(rcp_info_list[4][:4]) - 1
+    report_json['회사명'] = rcp_info[0]
+    report_json['년도'] = int(rcp_info_list[4][:4]) - 1
     # 레포트 html문서로 부터, 필요한 세부 레포트 url을 저장할 딕셔너리 생성
     report_dict = {'재무상태표': None, '대차대조표': None, '손익계산서': None, '현금흐름표': None}
     # 보고서 접수번호
@@ -117,33 +117,51 @@ def collect_report(rcp_info):
     투자활동현금흐름 : ifrs_CashFlowsFromUsedInInvestingActivities
     재무활동현금흐름 : ifrs_CashFlowsFromUsedInFinancingActivities
     '''
-
+    # 수집할 컬럼 명 리스트
+    column_list_1 = ['매출채권', '재고자산', '자산총계', '자본총계', '부채총계']
+    column_list_2 = ['매출액', '영업이익', '영업손실', '영업이익손실', '당기순이익', '당기순손실', '당기순이익순손실', '매출원가', '이자수익', '이자비용', '금융비용', '금융손실', '금융이익']
+    column_list_3 = ['영업활동으로인한현금흐름', '투자활동으로인한현금흐름', '재무활동으로인한현금흐름']
     # 재무상태표(대차대조표) 재무 데이터를 저장하는 JSON(파이썬 딕셔너리) 변수 생성
     finance_position_json = OrderedDict()
     # checkpoint 4
     #print('checkpoint 4 >>', finance_position_bsObj)
     # 재무상태표(대차대조표)에서 재무 데이터가 포함된 <tr> 태그 리스트 추출
     finance_position_trObjList = finance_position_bsObj.find_all('tbody')[1].find_all('tr')
+    # 차입금 누적 변수 선언
+    loan = 0
     # 컬럼 명을 확인해서, 수집 대상이면 수집 리스트에 저장
     for trObj in finance_position_trObjList:
         # 컬럼 명 수집 및 전처리
         column = trObj.find('td').get_text()
-        column = re.sub('[' + chr(32) + chr(160) + '\u3000'.decode('utf-8') + ']', '', column)  # 유령문자 제거
+        column = re.sub('[' + chr(32) + chr(160) + ']', '', column)  # 유령문자 제거
         column = re.sub('[\t\n\r\f\v-=.,#/?:$\{\}a-zA-Z0-9Ⅰ-Ↄㄱ-ㅣ]', '', column)
-        column = re.sub('주석', '', column)
+        column = column.replace('주', '')
+        #print(1, column, column.find('차입금'))
+        # 컬럼 명 필터링
+        if column not in column_list_1 and column.find('차입금') < 0:
+            continue
         # 컬럼 값 수집 및 전처리
-        value = ""
-        for td in trObj.find_all('td')[1:]:
+        value = 0
+        for td in trObj.find_all('td')[1:3]:
             td_text = td.get_text()
-            column = re.sub('[' + chr(32) + chr(160) + '\u3000'.decode('utf-8') + ']', '', column)  # 유령문자 제거
+            column = re.sub('[' + chr(32) + chr(160) + ']', '', column)  # 유령문자 제거
             td_text = re.sub('[\t\n\r\f\v,]', '', td_text)  # 공백 및 쉼표(,) 제거
-            if td_text != "":
-                value = td_text
-                break
+            if td_text in ['', '-']:
+                continue
+            if td_text.find('(') > -1:
+                td_text = '-' + td_text.replace('(', '').replace(')', '')
+            value = int(td_text)
         # checkpoint 4-1
         #print('checkpoint 4-1 >>', column, '|', value)
+        # 차입금 누적
+        if column.find('차입금') > 0:
+            loan += value
+            continue
         # 재무상태표(대차대조표) JSON에 데이터 저장
         finance_position_json[column] = value
+    # checkpoint 4-1-1
+    #print('checkpoint 4-1-1 >> 총차입금 |', loan)
+    finance_position_json['총차입금'] = loan
     # checkpoint 4-2
     #jsonString_4_2 = json.dumps(finance_position_json, indent='\t')  # JSON 문자열 생성
     #print('checkpoint 4-2 >>', jsonString_4_2, json.loads(jsonString_4_2))  # JSON 문자열로 생성산 JSON 객체 출력
@@ -158,18 +176,24 @@ def collect_report(rcp_info):
     for trObj in income_statement_trObjList:
         # 컬럼 명 수집 및 전처리
         column = trObj.find('td').get_text()
-        column = re.sub(chr(160), '', column)  # 유령문자 제거
+        column = re.sub('[' + chr(32) + chr(160) + ']', '', column)  # 유령문자 제거
         column = re.sub('[\t\n\r\f\v-=.,#/?:$\{\}a-zA-Z0-9Ⅰ-Ↄ]', '', column)
-        column = re.sub('주석', '', column)
+        column = re.sub('주', '', column)
+        #print('2', column, column not in column_list_2)
+        # 컬럼 명 필터링
+        if column not in column_list_2:
+            continue
         # 컬럼 값 수집 및 전처리
-        value = ""
-        for td in trObj.find_all('td')[1:]:
+        value = 0
+        for td in trObj.find_all('td')[1:3]:
             td_text = td.get_text()
-            td_text = re.sub('[' + chr(32) + chr(160) + ']', '', td_text)  # 유령문자 제거
+            column = re.sub('[' + chr(32) + chr(160) + ']', '', column)  # 유령문자 제거
             td_text = re.sub('[\t\n\r\f\v,]', '', td_text)  # 공백 및 쉼표(,) 제거
-            if td_text != "":
-                value = td_text
-                break
+            if td_text in ['', '-']:
+                continue
+            if td_text.find('(') > -1:
+                td_text = '-' + td_text.replace('(', '').replace(')', '')
+            value = int(td_text)
         # checkpoint 5-1
         #print('checkpoint 5-1 >>', column, '|', value)
         income_statement_json[column] = value
@@ -191,15 +215,21 @@ def collect_report(rcp_info):
         column = re.sub('[가-힣]\.', '', column)
         column = re.sub('[\t\n\r\f\v-=.,#/?:$\{\}a-zA-Z0-9Ⅰ-Ↄ]', '', column)
         column = re.sub('주석', '', column)
+        #print(3, column)
+        # 컬럼 명 필터링
+        if column not in column_list_3:
+            continue
         # 컬럼 값 수집 및 전처리
-        value = ""
-        for td in trObj.find_all('td')[1:]:
+        value = 0
+        for td in trObj.find_all('td')[1:3]:
             td_text = td.get_text()
-            td_text = re.sub('[' + chr(32) + chr(160) + ']', '', td_text)  # 유령문자 제거
+            column = re.sub('[' + chr(32) + chr(160) + ']', '', column)  # 유령문자 제거
             td_text = re.sub('[\t\n\r\f\v,]', '', td_text)  # 공백 및 쉼표(,) 제거
-            if td_text != "":
-                value = td_text
-                break
+            if td_text in ['', '-']:
+                continue
+            if td_text.find('(') > -1:
+                td_text = '-' + td_text.replace('(', '').replace(')', '')
+            value = int(td_text)
         # checkpoint 6-1
         #print('checkpoint 6-1 >>', column, '|', value)
         cash_flow_json[column] = value
@@ -215,29 +245,35 @@ def collect_report(rcp_info):
     #json_normalize(test_json['손익계산서'])
     #print(json_normalize(test_json['현금흐름표']))
     # 모든 보고서 데이터가 저장된 JSON 객체 반환
+    report_json['재무상태표'] = finance_position_json
+    report_json['손익계산서'] = income_statement_json
+    report_json['현금흐름표'] = cash_flow_json
     return report_json
 
 if __name__=="__main__":
     count = 1
     with open("report_list.json", 'r') as report_list:
         count = len( report_list.readlines() )
+    index = count
     while count < 456:
         with open("rcpNo_list.csv", 'r') as rcpNo_list:
-            for rcp_info in rcpNo_list.readlines()[ count : ]:
+            for rcp_info in rcpNo_list.readlines()[ count : 10]:
                 rcp_info_list = rcp_info.split(",")
                 report_json = OrderedDict()
                 # 재무제표 메타 데이터를 저장
-                report_json['1.회사명'] = rcp_info_list[0]
-                report_json['2.년도'] = int(rcp_info_list[4][:4]) - 1
-                print(report_json)
-
+                report_json['회사명'] = rcp_info_list[0]
+                report_json['년도'] = int(rcp_info_list[4][:4]) - 1
+                #print(report_json)
+                
                 try:
                     report_json = collect_report(rcp_info_list)
-                    print('Success >> current count : %d' % count)
+                    print('Success >> current count : %d' % index)
                 except:
-                    with open("fail_count.json", 'a') as fail_count:
-                        fail_count.write('%d\n' % count)
-                    print('Fail >> main exception executes at count : %d' % count)
+                    with open('fail_index.csv', 'a') as fail_index:
+                        fail_index.write('%d\n' % index)
+                    print('Fail >> main exception executes at count : %d' % fail_index)
+                
                 report_json_string = json.dumps(report_json)
-                with open("report_list.json", 'a') as report_list:
+                with open('report_list.json', 'a') as report_list:
                     report_list.write(report_json_string + ',\n')
+                index += 1
