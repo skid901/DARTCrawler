@@ -69,6 +69,7 @@ def search_crpNo(target_BusinessNo, target_CrpNm):
         target_BusinessNo_NonFiltering = BusinessNo
         # 사업자등록번호가 일치할 경우 기업고유번호 저장
         target_CrpNo = CrpNo
+        print('target_CrpNo', target_CrpNo)
 
     # 브라우저 종료
     browser.quit()
@@ -116,7 +117,7 @@ def collect_crpNo():
             # 테스트 CrpNo_info
             print("crpNo_info >>", crpNo_info)
             # 기업 고유 번호 리스트 파일 열기
-            with open("CrpNo_list.csv", 'a') as crpNo_list:
+            with open("crpNo_list.csv", 'a') as crpNo_list:
                 # 리스트 파일에 기업 고유 번호 정보 입력(csv)
                 crpNo_list.write(",".join(crpNo_info) + "\n")
 

@@ -11,6 +11,7 @@ import json
 import pandas as pd
 from pandas.io.json import json_normalize
 
+# index : 오류를 발생시키는 기업 데이터를 확인하기 위한 변수
 def collect_report(rcp_info, index):
     # 에러 메세지 관련 변수 선언
     error_mesg = str(index)
