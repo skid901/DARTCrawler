@@ -5,7 +5,7 @@ import json
 # 동명의 기업을 구분하기 위해 사업자 등록번호 사용
 def search_rcpNo(businsessNo, crpNo):
     # 요청 url 변수 설정
-    auth_key = "4b8d4bcfe25fe4edafafad828787e5139fe6943b" # DART OPEN API 인증키
+    auth_key = "" # DART OPEN API 인증키
     crp_cd = crpNo  # crp_cd: 기업 고유번호
     start_dt = "20140101"  # start_dt: 검색시작 접수일자(YYYYMMDD)
     fin_rpt = "Y"  # 최종보고서만 검색여부(Y or N)
